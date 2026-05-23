@@ -838,7 +838,7 @@
             <a href="#testimonials" class="nav-link">Reviews</a>
             <a href="#booking" class="nav-link">Book</a>
             <a href="#contact" class="nav-link">Contact</a>
-            <button id="langToggle" class="nav-link lang-btn" style="border: 1px solid var(--gold); background: transparent; color: var(--gold); border-radius: 12px; padding: 4px 12px; cursor: pointer; margin-right: 15px;">ಕನ್ನಡ</button>
+            <button class="nav-link lang-btn langToggle" style="border: 1px solid var(--gold); background: transparent; color: var(--gold); border-radius: 12px; padding: 4px 12px; cursor: pointer; margin-right: 15px;">ಕನ್ನಡ</button>
             <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20would%20like%20to%20book%20a%20ride." class="nav-cta" target="_blank">WhatsApp Us</a>
         </div>
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
@@ -846,6 +846,7 @@
         </button>
     </nav>
     <div class="mobile-nav" id="mobileNav">
+        <button class="langToggle" style="border: 1px solid var(--gold); background: transparent; color: var(--gold); border-radius: 12px; padding: 10px 12px; cursor: pointer; margin-bottom:15px; width:fit-content; margin-left: 20px;">?????</button>
         <a href="#fleet" onclick="closeMobileMenu()">Fleet</a>
         <a href="#services" onclick="closeMobileMenu()">Services</a>
         <a href="#story" onclick="closeMobileMenu()">Journey</a>
@@ -1368,7 +1369,7 @@
     // ============================================================
     // KANNADA TOGGLE LOGIC
     // ============================================================
-    const langBtn = document.getElementById('langToggle');
+    const langBtns = document.querySelectorAll('.langToggle');
     const dict = {
         "Fleet": "ಫ್ಲೀಟ್", "Services": "ಸೇವೆಗಳು", "Journey": "ಪಯಣ", "Reviews": "ವಿಮರ್ಶೆಗಳು", "Book": "ಬುಕ್ ಮಾಡಿ", "Contact": "ಸಂಪರ್ಕಿಸಿ",
         "Our Premium Fleet": "ನಮ್ಮ ಪ್ರೀಮಿಯಂ ಫ್ಲೀಟ್", "Experience True Luxury": "ನಿಜವಾದ ಐಷಾರಾಮಿಯನ್ನು ಅನುಭವಿಸಿ",
