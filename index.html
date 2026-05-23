@@ -115,7 +115,7 @@
         }
         .intro-title {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 6vw, 5rem); font-weight: 700;
+            font-size: clamp(1.5rem, 4vw, 3.5rem); font-weight: 700;
             letter-spacing: 0.3em; color: var(--gold-bright);
             text-shadow: 0 0 40px var(--gold-glow), 0 0 80px rgba(212,175,55,0.2), 0 0 120px rgba(212,175,55,0.1);
             opacity: 0; position: relative; z-index: 2;
@@ -764,6 +764,7 @@
             .mobile-menu-btn { display: flex; }
             #navbar { padding: 16px 20px; }
             .section-padding { padding: 80px 5vw; }
+            .fleet-grid { grid-template-columns: 1fr; }
             .services-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; }
@@ -837,6 +838,7 @@
             <a href="#testimonials" class="nav-link">Reviews</a>
             <a href="#booking" class="nav-link">Book</a>
             <a href="#contact" class="nav-link">Contact</a>
+            <button id="langToggle" class="nav-link lang-btn" style="border: 1px solid var(--gold); background: transparent; color: var(--gold); border-radius: 12px; padding: 4px 12px; cursor: pointer; margin-right: 15px;">ಕನ್ನಡ</button>
             <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20would%20like%20to%20book%20a%20ride." class="nav-cta" target="_blank">WhatsApp Us</a>
         </div>
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
@@ -1362,35 +1364,48 @@
     // INIT
     // ============================================================
     initFleetGrid();
-    
-    function initServices() {
-        const grid = document.getElementById('servicesGrid');
-        if(!grid) return;
-        servicesData.forEach((s, i) => {
-            const card = document.createElement('div');
-            card.className = 'service-card';
-            card.innerHTML = `<div class="service-icon">${s.icon}</div><h3 class="service-title">${s.title}</h3><p class="service-desc">${s.desc}</p><a href="#contact" class="service-link">Learn More <span>→</span></a>`;
-            grid.appendChild(card);
+
+    // ============================================================
+    // KANNADA TOGGLE LOGIC
+    // ============================================================
+    const langBtn = document.getElementById('langToggle');
+    const dict = {
+        "Fleet": "ಫ್ಲೀಟ್", "Services": "ಸೇವೆಗಳು", "Journey": "ಪಯಣ", "Reviews": "ವಿಮರ್ಶೆಗಳು", "Book": "ಬುಕ್ ಮಾಡಿ", "Contact": "ಸಂಪರ್ಕಿಸಿ",
+        "Our Premium Fleet": "ನಮ್ಮ ಪ್ರೀಮಿಯಂ ಫ್ಲೀಟ್", "Experience True Luxury": "ನಿಜವಾದ ಐಷಾರಾಮಿಯನ್ನು ಅನುಭವಿಸಿ",
+        "What Our Clients Say About Us": "ನಮ್ಮ ಗ್ರಾಹಕರು ಏನು ಹೇಳುತ್ತಾರೆ", "Your Journey Begins Here": "ನಿಮ್ಮ ಪಯಣ ಇಲ್ಲಿಂದ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ",
+        "Book Your Ride": "ರೈಡ್ ಬುಕ್ ಮಾಡಿ", "Airport Taxi": "ಏರ್ಪೋರ್ಟ್ ಟ್ಯಾಕ್ಸಿ", "Hotel Transfers": "ಹೋಟೆಲ್ ಟ್ರಾನ್ಸ್ಫರ್"
+    };
+
+    if (langBtn) {
+        langBtn.addEventListener('click', () => {
+            let isKannada = document.documentElement.lang === 'kn';
+            if (!isKannada) {
+                document.documentElement.lang = 'kn';
+                langBtn.textContent = 'English';
+                doTranslate(true);
+            } else {
+                document.documentElement.lang = 'en';
+                langBtn.textContent = 'ಕನ್ನಡ';
+                doTranslate(false);
+            }
         });
     }
-    initServices();
-    
-    function initTestimonials() {
-        const track = document.getElementById('testimonialTrack');
-        if (!track) return;
-        
-        const markup = testimonialsData.map((t) => {
-            return `<div class="testimonial-card">
-                <p style="margin-bottom:15px; font-size:1.05rem; font-style:italic;">"${t.text}"</p>
-                <h4 style="color:var(--gold); font-size:1.1rem; margin-bottom:5px;">${t.name}</h4>
-                <p style="font-size:0.9rem; opacity:0.7;">${t.role}</p>
-            </div>`;
-        }).join('');
-        
-        // Duplicate for infinite marquee effect if necessary
-        track.innerHTML = markup + markup;
+
+    function doTranslate(toKannada) {
+        document.querySelectorAll('a, h2, h3, div').forEach(el => {
+            if (el.children.length === 0 && el.textContent.trim()) {
+                let txt = el.textContent.trim();
+                let orig = el.dataset.orig || txt;
+                if (!el.dataset.orig) el.dataset.orig = orig;
+                
+                if (toKannada && dict[orig]) {
+                    el.textContent = dict[orig];
+                } else if (!toKannada && dict[orig]) {
+                    el.textContent = orig;
+                }
+            }
+        });
     }
-    initTestimonials();
     </script>
 </body>
 </html>
