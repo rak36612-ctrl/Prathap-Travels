@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRATHAP TRAVELS | Premium Luxury Travel Experience</title>
+    <meta name="description" content="Prathap Travels — Premium chauffeur &amp; luxury travel services. Airport taxi, corporate travel, wedding car booking, outstation trips &amp; luxury car rental.">
+    <meta name="keywords" content="luxury travel, airport taxi, chauffeur service, wedding car booking, corporate travel, Prathap Travels">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { 50:'#fdf8ef', 100:'#f9edcf', 200:'#f2d89e', 300:'#e9be64', 400:'#e2a83e', 500:'#c8a97e', 600:'#d4af37', 700:'#b8860b', 800:'#96690a', 900:'#7a540c' },
+                        dark: { 50:'#f5f5f5', 100:'#e0e0e0', 200:'#1a1a2e', 300:'#16162a', 400:'#111126', 500:'#0d0d1a', 600:'#0a0a14', 700:'#07070e', 800:'#040408', 900:'#000000' }
+                    },
+                    fontFamily: { playfair:['Playfair Display','serif'], inter:['Inter','sans-serif'], outfit:['Outfit','sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP + Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+
+    <!-- Three.js (used for hero canvas) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        /* ========== CSS VARIABLES ========== */
+        :root {
+            --gold: #c8a97e;
+            --gold-light: #e2c9a0;
+            --gold-bright: #d4af37;
+            --gold-glow: rgba(212,175,55,0.4);
+            --black: #000000;
+            --black-light: #0a0a14;
+            --black-mid: #111126;
+            --white: #ffffff;
+            --white-dim: #cccccc;
+            --glass-bg: rgba(255,255,255,0.04);
+            --glass-border: rgba(255,255,255,0.08);
+        }
+
+        /* ========== BASE STYLES ========== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family:'Inter',sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+            cursor: none;
+        }
+        ::selection { background: var(--gold); color: var(--black); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--black); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+        /* ========== CUSTOM CURSOR ========== */
+        .cursor-dot {
+            width: 8px; height: 8px;
+            background: var(--gold-bright);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 99999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s;
+        }
+        .cursor-ring {
+            width: 40px; height: 40px;
+            border: 1.5px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 99998;
+            transition: width 0.3s, height 0.3s, border-color 0.3s;
+        }
+        .cursor-ring.hover {
+            width: 60px; height: 60px;
+            border-color: var(--gold-bright);
+            background: rgba(212,175,55,0.08);
+        }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold-bright), var(--gold-light), var(--gold-bright));
+            z-index: 99997; width: 0%;
+            transition: width 0.05s linear;
+        }
+
+        /* ========== INTRO ANIMATION ========== */
+        #intro-screen {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100vh;
+            background: var(--black); z-index: 100000;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .intro-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 6vw, 5rem); font-weight: 700;
+            letter-spacing: 0.3em; color: var(--gold-bright);
+            text-shadow: 0 0 40px var(--gold-glow), 0 0 80px rgba(212,175,55,0.2), 0 0 120px rgba(212,175,55,0.1);
+            opacity: 0; position: relative; z-index: 2;
+        }
+        .intro-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            letter-spacing: 0.5em; color: var(--gold);
+            opacity: 0; margin-top: 10px; text-transform: uppercase;
+        }
+        .intro-car-container {
+            position: absolute; bottom: 30%; width: 100%;
+            height: 120px; overflow: hidden; z-index: 1;
+        }
+        .intro-car {
+            position: absolute; left: -300px; bottom: 0;
+            width: 260px; height: 80px; opacity: 0;
+        }
+        .car-body {
+            position: absolute; bottom: 18px; left: 20px;
+            width: 220px; height: 40px;
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border-radius: 8px 30px 4px 4px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.8);
+        }
+        .car-top {
+            position: absolute; bottom: 50px; left: 60px;
+            width: 130px; height: 32px;
+            background: linear-gradient(135deg, #333, #222);
+            border-radius: 4px 20px 0 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .car-window {
+            position: absolute; bottom: 52px; left: 75px;
+            width: 100px; height: 24px;
+            background: linear-gradient(135deg, rgba(100,150,200,0.3), rgba(50,80,120,0.2));
+            border-radius: 3px 15px 0 0;
+        }
+        .wheel {
+            position: absolute; bottom: 4px;
+            width: 26px; height: 26px;
+            background: radial-gradient(circle, #555 30%, #222 60%, #111 100%);
+            border-radius: 50%; border: 2px solid #444;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .wheel::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px; height: 8px; background: #888; border-radius: 50%;
+        }
+        .wheel-front { left: 40px; }
+        .wheel-rear { left: 180px; }
+        .headlight {
+            position: absolute; bottom: 28px; right: -10px;
+            width: 14px; height: 10px; background: #fff;
+            border-radius: 2px 8px 8px 2px;
+            box-shadow: 0 0 20px #fff, 0 0 60px rgba(255,255,200,0.6);
+            opacity: 0;
+        }
+        .light-beam {
+            position: absolute; bottom: 20px; right: -400px;
+            width: 400px; height: 60px;
+            background: linear-gradient(90deg, rgba(255,255,200,0.15), rgba(255,255,200,0));
+            clip-path: polygon(0 30%, 100% 0, 100% 100%, 0 70%);
+            opacity: 0;
+        }
+        .taillight {
+            position: absolute; bottom: 28px; left: 18px;
+            width: 10px; height: 8px; background: #ff2222;
+            border-radius: 3px 1px 1px 3px;
+            box-shadow: 0 0 15px rgba(255,0,0,0.6), 0 0 40px rgba(255,0,0,0.3);
+            opacity: 0;
+        }
+        .intro-particles { position: absolute; width: 100%; height: 100%; z-index: 0; }
+        .smoke-particle {
+            position: absolute; border-radius: 50%;
+            background: radial-gradient(circle, rgba(200,169,126,0.15), transparent);
+            filter: blur(20px);
+        }
+        .intro-line {
+            position: absolute; bottom: calc(30% + 14px); left: 0;
+            width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(200,169,126,0.2), transparent);
+        }
+
+        /* ========== NAVBAR ========== */
+        #navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 9999; padding: 20px 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        #navbar.scrolled {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            padding: 12px 40px;
+            border-bottom: 1px solid rgba(200,169,126,0.1);
+        }
+        .nav-logo {
+            font-family: 'Playfair Display', serif; font-size: 1.5rem;
+            font-weight: 700; color: var(--gold-bright);
+            letter-spacing: 0.15em; text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-link {
+            font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 400;
+            color: var(--white-dim); text-decoration: none;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            position: relative; padding: 4px 0; transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: -2px; left: 0;
+            width: 0%; height: 1px; background: var(--gold-bright);
+            transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link:hover { color: var(--gold); }
+        .nav-link:hover::after { width: 100%; }
+        .nav-cta {
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+            color: var(--black); padding: 10px 24px; border-radius: 30px;
+            font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;
+            transition: all 0.3s; box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+        }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,175,55,0.5); }
+        .mobile-menu-btn {
+            display: none; flex-direction: column; gap: 5px;
+            cursor: pointer; background: none; border: none; padding: 5px;
+        }
+        .mobile-menu-btn span { width: 25px; height: 2px; background: var(--gold); transition: all 0.3s; display: block; }
+        .mobile-nav {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100vh; background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(30px); z-index: 9998;
+            flex-direction: column; align-items: center; justify-content: center; gap: 30px;
+        }
+        .mobile-nav.active { display: flex; }
+        .mobile-nav a {
+            font-family: 'Playfair Display', serif; font-size: 1.8rem;
+            color: var(--white); text-decoration: none;
+            letter-spacing: 0.1em; transition: color 0.3s;
+        }
+        .mobile-nav a:hover { color: var(--gold); }
+
+        /* ========== HERO SECTION ========== */
+        #hero {
+            position: relative; width: 100%; height: 100vh;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 110%; height: 110%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)),
+                url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1920&q=80') center/cover no-repeat;
+            transform: scale(1);
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.95) 100%);
+        }
+        #hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .hero-content { position: relative; z-index: 2; text-align: center; max-width: 900px; padding: 0 20px; }
+        .hero-badge {
+            display: inline-block; padding: 8px 24px; border: 1px solid var(--gold);
+            border-radius: 30px; font-family: 'Outfit', sans-serif; font-size: 0.75rem;
+            letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold);
+            margin-bottom: 30px; opacity: 0;
+        }
+        .hero-title {
+            font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 7vw, 5.5rem);
+            font-weight: 700; line-height: 1.1; margin-bottom: 24px; opacity: 0;
+            background: linear-gradient(135deg, var(--white), var(--gold-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-subtitle {
+            font-family: 'Outfit', sans-serif; font-size: clamp(1rem, 1.8vw, 1.3rem);
+            font-weight: 300; color: var(--white-dim); margin-bottom: 40px;
+            opacity: 0; letter-spacing: 0.05em;
+        }
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity: 0; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+            color: var(--black); padding: 16px 40px; border-radius: 50px;
+            font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.15em; text-decoration: none;
+            border: none; cursor: none; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 4px 30px rgba(212,175,55,0.3); position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 40px rgba(212,175,55,0.5); }
+        .btn-outline {
+            background: transparent; color: var(--white); padding: 16px 40px;
+            border-radius: 50px; font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+            font-weight: 500; text-transform: uppercase; letter-spacing: 0.15em;
+            text-decoration: none; border: 1px solid rgba(200,169,126,0.4);
+            cursor: none; transition: all 0.4s;
+        }
+        .btn-outline:hover {
+            background: rgba(200,169,126,0.1); border-color: var(--gold);
+            color: var(--gold); transform: translateY(-3px);
+        }
+        .btn-whatsapp {
+            background: #25D366; color: var(--white); padding: 16px 40px;
+            border-radius: 50px; font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em;
+            text-decoration: none; border: none; cursor: none; transition: all 0.4s;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+        }
+        .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(37,211,102,0.5); }
+        .hero-scroll-indicator {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0;
+        }
+        .scroll-mouse {
+            width: 24px; height: 38px; border: 2px solid rgba(200,169,126,0.4);
+            border-radius: 12px; position: relative;
+        }
+        .scroll-mouse::after {
+            content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+            width: 3px; height: 8px; background: var(--gold); border-radius: 2px;
+            animation: scrollAnim 2s infinite;
+        }
+        @keyframes scrollAnim {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(12px); }
+        }
+        .scroll-text { font-family: 'Outfit', sans-serif; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(200,169,126,0.5); }
+
+        /* ========== SECTION COMMON ========== */
+        .section-padding { padding: 120px 5vw; }
+        .section-label {
+            font-family: 'Outfit', sans-serif; font-size: 0.75rem;
+            letter-spacing: 0.4em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: 16px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .section-label::before { content: ''; width: 40px; height: 1px; background: var(--gold); }
+        .section-title {
+            font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700; line-height: 1.2; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--white), var(--gold-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .section-desc {
+            font-family: 'Outfit', sans-serif; font-size: 1.05rem;
+            color: var(--white-dim); max-width: 600px; line-height: 1.7; font-weight: 300;
+        }
+        .gold-divider { width: 80px; height: 2px; background: linear-gradient(90deg, var(--gold-bright), transparent); margin: 20px 0; }
+
+        /* ========== FLEET GRID ========== */
+        .fleet-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px; margin-top: 60px;
+            padding: 0 5vw;
+        }
+        @media (max-width: 1024px) {
+            .fleet-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 650px) {
+            .fleet-grid { grid-template-columns: 1fr; }
+        }
+        .fleet-card {
+            background: linear-gradient(180deg, rgba(8, 8, 20, 0.4), rgba(4, 4, 10, 0.9));
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        .fleet-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(200,169,126,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .fleet-img-wrap {
+            width: 100%;
+            height: 180px;
+            margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .fleet-card-img {
+            max-width: 100%; max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s ease;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+        .fleet-card:hover .fleet-card-img { transform: scale(1.06); }
+        .fleet-card-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 4px; color: var(--gold); }
+        .fleet-card-type { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-bottom: 16px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .fleet-card-specs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .fleet-spec-chip {
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(200,169,126,0.15); 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            color: var(--white-dim);
+        }
+        .fleet-card-desc { font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 24px; }
+        .fleet-card-actions { display: flex; gap: 10px; margin-top: auto; }
+        .fleet-card-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; font-size: 0.85rem; letter-spacing: 0.05em; transition: all 0.3s; text-transform: uppercase; }
+        .btn-view { border: 1px solid var(--gold); color: var(--gold); }
+        .btn-view:hover { background: var(--gold); color: var(--black); }
+        .btn-book { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); color: var(--black); font-weight: 600; }
+        .btn-book:hover { box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+
+        /* ========== FLEET 3D MODAL ========== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(30px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(135deg, rgba(12,12,28,0.98), rgba(6,6,16,0.99));
+            border: 1px solid rgba(200,169,126,0.12);
+            border-radius: 28px;
+            max-width: 950px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.85) translateY(40px);
+            opacity: 0;
+        }
+        .modal-content::-webkit-scrollbar { width: 4px; }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+        .modal-close {
+            position: absolute; top: 16px; right: 20px;
+            width: 44px; height: 44px;
+            border: 1px solid rgba(200,169,126,0.2);
+            border-radius: 50%; background: rgba(0,0,0,0.5);
+            color: var(--white); font-size: 1.3rem;
+            cursor: none; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        .modal-close:hover { background: rgba(200,169,126,0.15); border-color: var(--gold); }
+        .modal-3d-wrap {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            border-radius: 28px 28px 0 0;
+            overflow: hidden;
+        }
+        #modalCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .modal-orbit-hint {
+            position: absolute;
+            bottom: 12px; left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(200,169,126,0.5);
+            background: rgba(0,0,0,0.5);
+            padding: 6px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .modal-details {
+            padding: 36px 40px 40px;
+        }
+        .modal-car-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem; font-weight: 700; color: var(--white);
+            margin-bottom: 4px;
+        }
+        .modal-car-type {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--gold);
+            margin-bottom: 20px;
+        }
+        .modal-car-desc {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; color: var(--white-dim);
+            line-height: 1.7; margin-bottom: 24px;
+        }
+        .modal-specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .modal-spec {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(200,169,126,0.1);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+        .modal-spec-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem; font-weight: 700;
+            color: var(--gold-bright);
+            margin-bottom: 4px;
+        }
+        .modal-spec-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--white-dim);
+        }
+
+        /* ========== SERVICES SECTION ========== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px; margin-top: 60px;
+        }
+        .service-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 40px 30px;
+            position: relative; overflow: hidden;
+            cursor: none; transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        .service-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 180deg, transparent, rgba(212,175,55,0.05), transparent 30%);
+            animation: serviceRotate 8s linear infinite;
+            opacity: 0; transition: opacity 0.5s;
+        }
+        .service-card:hover::before { opacity: 1; }
+        @keyframes serviceRotate { 100% { transform: rotate(360deg); } }
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(200,169,126,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(212,175,55,0.05);
+        }
+        .service-icon {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(200,169,126,0.05));
+            border: 1px solid rgba(200,169,126,0.2); border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 24px; transition: all 0.4s;
+            position: relative; z-index: 1;
+        }
+        .service-card:hover .service-icon {
+            transform: scale(1.15);
+            background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(200,169,126,0.1));
+            box-shadow: 0 0 30px rgba(212,175,55,0.15);
+        }
+        .service-title {
+            font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 600;
+            color: var(--white); margin-bottom: 12px; position: relative; z-index: 1;
+        }
+        .service-desc {
+            font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+            color: var(--white-dim); line-height: 1.6; position: relative; z-index: 1;
+        }
+
+        /* ========== PARALLAX STORYTELLING ========== */
+        .parallax-section {
+            position: relative; height: 80vh; min-height: 500px;
+            display: flex; align-items: center; overflow: hidden;
+        }
+        .parallax-bg {
+            position: absolute; inset: -50px;
+            background-size: cover; background-position: center;
+            filter: brightness(0.4); transition: transform 0.1s linear;
+        }
+        .parallax-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)); }
+        .parallax-content { position: relative; z-index: 2; padding: 0 10vw; max-width: 700px; }
+        .parallax-number {
+            font-family: 'Playfair Display', serif; font-size: 8rem; font-weight: 800;
+            color: rgba(212,175,55,0.08); position: absolute; top: 20%; right: 10%; line-height: 1;
+        }
+
+        /* ========== TESTIMONIALS ========== */
+        .testimonial-wrapper { overflow: hidden; margin-top: 60px; position: relative; }
+        .testimonial-wrapper::before, .testimonial-wrapper::after {
+            content: ''; position: absolute; top: 0; width: 150px; height: 100%;
+            z-index: 2; pointer-events: none;
+        }
+        .testimonial-wrapper::before { left: 0; background: linear-gradient(90deg, var(--black), transparent); }
+        .testimonial-wrapper::after { right: 0; background: linear-gradient(-90deg, var(--black), transparent); }
+        .testimonial-track { display: flex; gap: 24px; animation: testimonialScroll 30s linear infinite; width: max-content; }
+        .testimonial-track:hover { animation-play-state: paused; }
+        @keyframes testimonialScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .testimonial-card {
+            min-width: 380px; max-width: 380px; background: var(--glass-bg);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 32px;
+            backdrop-filter: blur(10px); transition: all 0.4s; cursor: none; flex-shrink: 0;
+        }
+        .testimonial-card:hover { transform: translateY(-6px); border-color: rgba(200,169,126,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .testimonial-stars { display: flex; gap: 4px; margin-bottom: 16px; }
+        .star { color: var(--gold-bright); font-size: 1rem; }
+        .testimonial-text { font-family: 'Outfit', sans-serif; font-size: 0.95rem; color: var(--white-dim); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+        .testimonial-author { display: flex; align-items: center; gap: 12px; }
+        .testimonial-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1rem; color: var(--black);
+        }
+        .testimonial-name { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--white); }
+        .testimonial-role { font-family: 'Outfit', sans-serif; font-size: 0.75rem; color: var(--white-dim); }
+
+        /* ========== BOOKING SECTION ========== */
+        .booking-form {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 50px; max-width: 700px; margin: 60px auto 0;
+            position: relative; overflow: hidden;
+        }
+        .booking-form::before {
+            content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.2), transparent, rgba(212,175,55,0.1));
+            z-index: -1;
+        }
+        .form-group { position: relative; margin-bottom: 28px; }
+        .form-input {
+            width: 100%; padding: 18px 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; color: var(--white);
+            font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+            outline: none; transition: all 0.4s; cursor: none;
+        }
+        .form-input:focus { border-color: var(--gold); background: rgba(200,169,126,0.03); box-shadow: 0 0 20px rgba(212,175,55,0.08); }
+        .form-label {
+            position: absolute; left: 20px; top: 18px;
+            font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+            color: rgba(255,255,255,0.3); pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .form-input:focus ~ .form-label,
+        .form-input:not(:placeholder-shown) ~ .form-label {
+            top: -10px; left: 16px; font-size: 0.72rem;
+            color: var(--gold); background: var(--black-light); padding: 0 8px;
+        }
+        .form-select {
+            appearance: none; width: 100%; padding: 18px 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; color: var(--white);
+            font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+            outline: none; cursor: none; transition: all 0.4s;
+        }
+        .form-select:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(212,175,55,0.08); }
+        .form-select option { background: var(--black-mid); color: var(--white); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* ========== CONTACT SECTION ========== */
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; }
+        .contact-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 30px; display: flex; align-items: center;
+            gap: 20px; transition: all 0.4s; cursor: none; text-decoration: none;
+        }
+        .contact-card:hover { transform: translateY(-4px); border-color: rgba(200,169,126,0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .contact-icon {
+            width: 56px; height: 56px; min-width: 56px; border-radius: 16px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(200,169,126,0.05));
+            border: 1px solid rgba(200,169,126,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; transition: all 0.3s;
+        }
+        .contact-card:hover .contact-icon { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); transform: scale(1.1); }
+        .contact-label { font-family: 'Outfit', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+        .contact-value { font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--white); }
+        .map-container { border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); margin-top: 40px; height: 400px; }
+        .map-container iframe { width: 100%; height: 100%; border: 0; filter: grayscale(0.8) invert(0.92) contrast(0.9); }
+
+        /* ========== FOOTER ========== */
+        footer { position: relative; padding: 60px 5vw 30px; border-top: 1px solid rgba(200,169,126,0.1); overflow: hidden; }
+        footer::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold-bright), var(--gold), transparent);
+            animation: footerLine 4s ease-in-out infinite alternate;
+        }
+        @keyframes footerLine { 0% { opacity: 0.3; transform: scaleX(0.5); } 100% { opacity: 1; transform: scaleX(1); } }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--gold-bright); letter-spacing: 0.1em; margin-bottom: 16px; }
+        .footer-desc { font-family: 'Outfit', sans-serif; font-size: 0.85rem; color: var(--white-dim); line-height: 1.7; max-width: 300px; }
+        .footer-title { font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+        .footer-link { display: block; font-family: 'Outfit', sans-serif; font-size: 0.85rem; color: var(--white-dim); text-decoration: none; margin-bottom: 12px; transition: all 0.3s; position: relative; }
+        .footer-link:hover { color: var(--gold); padding-left: 8px; }
+        .footer-social { display: flex; gap: 12px; margin-top: 20px; }
+        .social-icon {
+            width: 42px; height: 42px; border: 1px solid rgba(200,169,126,0.2);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: var(--white-dim); text-decoration: none;
+            transition: all 0.3s; cursor: none;
+        }
+        .social-icon:hover { background: var(--gold); color: var(--black); border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(212,175,55,0.3); }
+        .footer-bottom { border-top: 1px solid rgba(200,169,126,0.08); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .footer-copy { font-family: 'Outfit', sans-serif; font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+
+        /* ========== FLOATING WHATSAPP ========== */
+        .whatsapp-float {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px; background: #25D366; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: #fff; text-decoration: none;
+            z-index: 9990; box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+            transition: all 0.3s; cursor: none; animation: whatsappPulse 2s infinite;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
+        @keyframes whatsappPulse { 0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.4); } 50% { box-shadow: 0 4px 20px rgba(37,211,102,0.4), 0 0 0 12px rgba(37,211,102,0.1); } }
+
+        /* ========== MOUSE FOLLOW LIGHT ========== */
+        .mouse-light {
+            position: fixed; width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,175,55,0.03) 0%, transparent 70%);
+            pointer-events: none; z-index: 1; transform: translate(-50%, -50%);
+        }
+
+        /* ========== STATS ========== */
+        .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; margin-top: 80px; }
+        .stat-item { padding: 40px 30px; text-align: center; border-right: 1px solid var(--glass-border); position: relative; }
+        .stat-item:last-child { border-right: none; }
+        .stat-number { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: var(--gold-bright); line-height: 1; margin-bottom: 8px; }
+        .stat-label { font-family: 'Outfit', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white-dim); }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .stat-item:nth-child(2) { border-right: none; }
+            .contact-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: flex; }
+            #navbar { padding: 16px 20px; }
+            .section-padding { padding: 80px 5vw; }
+            .services-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .stats-bar { grid-template-columns: 1fr; }
+            .stat-item { border-right: none; border-bottom: 1px solid var(--glass-border); }
+            .stat-item:last-child { border-bottom: none; }
+            .booking-form { padding: 30px 20px; }
+            .parallax-content { padding: 0 5vw; }
+            .parallax-number { font-size: 5rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+            .testimonial-card { min-width: 300px; max-width: 300px; }
+            .cursor-dot, .cursor-ring, .mouse-light { display: none; }
+            body { cursor: auto; }
+            .btn-primary, .btn-outline, .btn-whatsapp, .nav-cta, .service-card,
+            .contact-card, .social-icon, .modal-close, .form-input, .form-select,
+            .whatsapp-float, .nav-arrow, .nav-dot { cursor: auto; }
+            .showroom-canvas-wrap { height: 45vh; min-height: 320px; }
+            .modal-3d-wrap { height: 280px; }
+            .modal-details { padding: 24px 20px 30px; }
+            .modal-specs-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2rem; }
+            .section-title { font-size: 1.8rem; }
+            .intro-title { letter-spacing: 0.1em; }
+            .showroom-car-name { font-size: 1.6rem; }
+        }
+
+        /* ========== ANIMATIONS ========== */
+        .reveal { opacity: 0; transform: translateY(60px); }
+        .reveal-left { opacity: 0; transform: translateX(-60px); }
+        .reveal-right { opacity: 0; transform: translateX(60px); }
+        .reveal-scale { opacity: 0; transform: scale(0.9); }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <div class="mouse-light" id="mouseLight"></div>
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- ========== INTRO SCREEN ========== -->
+    <div id="intro-screen">
+        <div class="intro-particles" id="introParticles"></div>
+        <h1 class="intro-title" id="introTitle">PRATHAP TRAVELS</h1>
+        <p class="intro-subtitle" id="introSubtitle">Premium Travel Experience</p>
+        <div class="intro-line"></div>
+        <div class="intro-car-container">
+            <div class="intro-car" id="introCar">
+                <div class="light-beam"></div>
+                <div class="headlight"></div>
+                <div class="car-top"></div>
+                <div class="car-window"></div>
+                <div class="car-body"></div>
+                <div class="taillight"></div>
+                <div class="wheel wheel-front"></div>
+                <div class="wheel wheel-rear"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav id="navbar">
+        <a href="#hero" class="nav-logo">PRATHAP TRAVELS</a>
+        <div class="nav-links">
+            <a href="#fleet" class="nav-link">Fleet</a>
+            <a href="#services" class="nav-link">Services</a>
+            <a href="#story" class="nav-link">Journey</a>
+            <a href="#testimonials" class="nav-link">Reviews</a>
+            <a href="#booking" class="nav-link">Book</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20would%20like%20to%20book%20a%20ride." class="nav-cta" target="_blank">WhatsApp Us</a>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#fleet" onclick="closeMobileMenu()">Fleet</a>
+        <a href="#services" onclick="closeMobileMenu()">Services</a>
+        <a href="#story" onclick="closeMobileMenu()">Journey</a>
+        <a href="#testimonials" onclick="closeMobileMenu()">Reviews</a>
+        <a href="#booking" onclick="closeMobileMenu()">Book</a>
+        <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+        <a href="https://wa.me/919945966629" target="_blank" style="color:var(--gold);">WhatsApp Us</a>
+    </div>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section id="hero">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-overlay"></div>
+        <canvas id="hero-canvas"></canvas>
+        <div class="hero-content">
+            <div class="hero-badge" id="heroBadge">✦ Premium Luxury Travel ✦</div>
+            <h1 class="hero-title" id="heroTitle">Travel Beyond<br>Destination</h1>
+            <p class="hero-subtitle" id="heroSubtitle">Premium Chauffeur &amp; Luxury Travel Experience — Where every journey is a masterpiece of comfort, style, and elegance.</p>
+            <div class="hero-buttons" id="heroButtons">
+                <a href="#booking" class="btn-primary">Book Now</a>
+                <a href="#fleet" class="btn-outline">Explore Fleet</a>
+                <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20would%20like%20to%20book%20a%20ride." class="btn-whatsapp" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    WhatsApp Us
+                </a>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator" id="heroScroll">
+            <div class="scroll-mouse"></div>
+            <span class="scroll-text">Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- ========== STATS BAR ========== -->
+    <section class="section-padding" style="padding-top:0; padding-bottom:0; margin-top:-60px; position:relative; z-index:3;">
+        <div class="stats-bar reveal-scale">
+            <div class="stat-item"><div class="stat-number" data-count="15">0</div><div class="stat-label">Years Experience</div></div>
+            <div class="stat-item"><div class="stat-number" data-count="50000">0</div><div class="stat-label">Trips Completed</div></div>
+            <div class="stat-item"><div class="stat-number" data-count="200">0</div><div class="stat-label">Luxury Vehicles</div></div>
+            <div class="stat-item"><div class="stat-number" data-count="99">0</div><div class="stat-label">Client Satisfaction %</div></div>
+        </div>
+    </section>
+
+    <!-- ========== FLEET GRID ========== -->
+    <section id="fleet" class="section-padding">
+        <div class="reveal" style="text-align:center;">
+            <div class="section-label" style="justify-content:center;"><span></span>Our Premium Fleet</div>
+            <h2 class="section-title">Experience True Luxury</h2>
+            <div class="gold-divider" style="margin:20px auto;"></div>
+            <p class="section-desc" style="margin:0 auto;">Choose from our meticulously maintained fleet of high-end vehicles for the perfect journey.</p>
+        </div>
+        <div class="fleet-grid" id="fleetGrid"></div>
+    </section>
+
+    <!-- ========== SERVICES ========== -->
+    <section id="services" class="section-padding" style="background: linear-gradient(180deg, var(--black) 0%, rgba(10,10,20,1) 50%, var(--black) 100%);">
+        <div style="text-align:center;" class="reveal">
+            <div class="section-label" style="justify-content:center;"><span></span>Our Services</div>
+            <h2 class="section-title">Crafted Travel<br>Experiences</h2>
+            <div class="gold-divider" style="margin:20px auto;"></div>
+            <p class="section-desc" style="margin:0 auto;">From airport transfers to wedding convoys, we deliver seamless luxury travel solutions tailored to your every need.</p>
+        </div>
+        <div class="services-grid" id="servicesGrid"></div>
+    </section>
+
+    <!-- ========== PARALLAX STORYTELLING ========== -->
+    <section id="story">
+        <div class="parallax-section"><div class="parallax-bg" style="background-image:url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&q=80');"></div><div class="parallax-overlay"></div><div class="parallax-number reveal-right">01</div><div class="parallax-content"><div class="section-label reveal-left">The Journey Begins</div><h2 class="section-title reveal-left">City Lights,<br>Endless Roads</h2><div class="gold-divider reveal-left"></div><p class="section-desc reveal-left">From bustling cityscapes to serene highways, every Prathap Travels journey transforms ordinary commutes into extraordinary experiences.</p></div></div>
+        <div class="parallax-section"><div class="parallax-bg" style="background-image:url('https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=1920&q=80');"></div><div class="parallax-overlay"></div><div class="parallax-number reveal-right">02</div><div class="parallax-content"><div class="section-label reveal-left">Airport Excellence</div><h2 class="section-title reveal-left">Seamless Airport<br>Transfers</h2><div class="gold-divider reveal-left"></div><p class="section-desc reveal-left">Never miss a flight. Our professional chauffeurs ensure timely pickups and drop-offs with luxury vehicles.</p></div></div>
+        <div class="parallax-section"><div class="parallax-bg" style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&q=80');"></div><div class="parallax-overlay"></div><div class="parallax-number reveal-right">03</div><div class="parallax-content"><div class="section-label reveal-left">Beyond Boundaries</div><h2 class="section-title reveal-left">Outstation Trips<br>Redefined</h2><div class="gold-divider reveal-left"></div><p class="section-desc reveal-left">Explore destinations near and far in unmatched comfort. Our outstation packages combine luxury, safety, and freedom.</p></div></div>
+    </section>
+
+    <!-- ========== TESTIMONIALS ========== -->
+    <section id="testimonials" class="section-padding">
+        <div style="text-align:center;" class="reveal">
+            <div class="section-label" style="justify-content:center;"><span></span>Testimonials</div>
+            <h2 class="section-title">What Our Clients<br>Say About Us</h2>
+            <div class="gold-divider" style="margin:20px auto;"></div>
+        </div>
+        <div class="testimonial-wrapper"><div class="testimonial-track" id="testimonialTrack"></div></div>
+    </section>
+
+    <!-- ========== BOOKING ========== -->
+    <section id="booking" class="section-padding" style="background: linear-gradient(180deg, var(--black) 0%, rgba(10,10,20,1) 50%, var(--black) 100%);">
+        <div style="text-align:center;" class="reveal">
+            <div class="section-label" style="justify-content:center;"><span></span>Book Your Ride</div>
+            <h2 class="section-title">Reserve Your<br>Premium Journey</h2>
+            <div class="gold-divider" style="margin:20px auto;"></div>
+            <p class="section-desc" style="margin:0 auto;">Fill in your details and we'll get back to you instantly via WhatsApp.</p>
+        </div>
+        <form class="booking-form reveal-scale" id="bookingForm" onsubmit="handleBooking(event)">
+            <div class="form-group"><input type="text" class="form-input" id="bkName" placeholder=" " required><label class="form-label" for="bkName">Full Name</label></div>
+            <div class="form-group"><input type="tel" class="form-input" id="bkPhone" placeholder=" " required><label class="form-label" for="bkPhone">Phone Number</label></div>
+            <div class="form-row">
+                <div class="form-group"><input type="text" class="form-input" id="bkPickup" placeholder=" " required><label class="form-label" for="bkPickup">Pickup Location</label></div>
+                <div class="form-group"><input type="text" class="form-input" id="bkDrop" placeholder=" " required><label class="form-label" for="bkDrop">Drop Location</label></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><input type="date" class="form-input" id="bkDate" required style="color-scheme:dark;"></div>
+                <div class="form-group">
+                    <select class="form-select" id="bkVehicle" required><option value="" disabled selected>Select Vehicle</option><option>Kia Carens</option><option>Toyota Innova Crysta</option><option>Toyota Etios</option><option>Swift Dzire</option><option>Maruti Suzuki</option><option>Mercedes Benz</option><option>BMW</option></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <select class="form-select" id="bkService" required><option value="" disabled selected>Select Service Type</option><option>Airport Taxi</option><option>Pickup &amp; Drop</option><option>Hotel Transfer</option><option>Railway Station Transfer</option><option>Corporate Travel</option><option>Wedding / Event Car Booking</option><option>Outstation Trip</option><option>Luxury Car Rental</option></select>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%; text-align:center; display:flex; align-items:center; justify-content:center; gap:10px; font-size:1rem; padding:18px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Book via WhatsApp
+            </button>
+        </form>
+    </section>
+
+    <!-- ========== CONTACT ========== -->
+    <section id="contact" class="section-padding">
+        <div class="reveal">
+            <div class="section-label">Get In Touch</div>
+            <h2 class="section-title">Contact Us</h2>
+            <div class="gold-divider"></div>
+            <p class="section-desc">Ready to experience premium travel? Reach out through any channel.</p>
+        </div>
+        <div class="contact-grid">
+            <a href="tel:+919945966629" class="contact-card reveal-left"><div class="contact-icon">📞</div><div><div class="contact-label">Call Us</div><div class="contact-value">+91 99459 66629</div></div></a>
+            <a href="https://wa.me/919945966629" class="contact-card reveal-right" target="_blank"><div class="contact-icon">💬</div><div><div class="contact-label">WhatsApp</div><div class="contact-value">+91 99459 66629</div></div></a>
+            <a href="mailto:info@prathaptravels.com" class="contact-card reveal-left"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-value">info@prathaptravels.com</div></div></a>
+            <div class="contact-card reveal-right"><div class="contact-icon">📍</div><div><div class="contact-label">Location</div><div class="contact-value">Premium Travel Hub, India</div></div></div>
+        </div>
+        <div class="map-container reveal-scale">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.5!2d77.59!3d12.97!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTPCsDAwJzAwLjAiTiA3N8KwMzUnMDAuMCJF!5e0!3m2!1sen!2sin!4v1" allowfullscreen loading="lazy"></iframe>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">PRATHAP TRAVELS</div>
+                <p class="footer-desc">India's premium luxury travel service. We redefine every journey with style, comfort, and unmatched elegance.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook">f</a>
+                    <a href="#" class="social-icon" aria-label="Instagram">✦</a>
+                    <a href="#" class="social-icon" aria-label="Twitter">𝕏</a>
+                    <a href="#" class="social-icon" aria-label="YouTube">▶</a>
+                </div>
+            </div>
+            <div>
+                <div class="footer-title">Services</div>
+                <a href="#services" class="footer-link">Airport Taxi</a><a href="#services" class="footer-link">Hotel Transfers</a><a href="#services" class="footer-link">Corporate Travel</a><a href="#services" class="footer-link">Wedding Cars</a><a href="#services" class="footer-link">Outstation Trips</a>
+            </div>
+            <div>
+                <div class="footer-title">Fleet</div>
+                <a href="#fleet" class="footer-link">Kia Carens</a><a href="#fleet" class="footer-link">Innova Crysta</a><a href="#fleet" class="footer-link">Mercedes Benz</a><a href="#fleet" class="footer-link">BMW</a><a href="#fleet" class="footer-link">Swift Dzire</a>
+            </div>
+            <div>
+                <div class="footer-title">Quick Links</div>
+                <a href="#hero" class="footer-link">Home</a><a href="#booking" class="footer-link">Book a Ride</a><a href="#testimonials" class="footer-link">Reviews</a><a href="#contact" class="footer-link">Contact</a><a href="https://wa.me/919945966629" class="footer-link" target="_blank">WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-copy">&copy; 2026 Prathap Travels. All rights reserved.</div>
+            <div class="footer-copy" style="color:var(--gold);">Premium Travel Redefined</div>
+        </div>
+    </footer>
+
+    <!-- ========== FLEET 3D MODAL ========== -->
+    <div class="modal-overlay" id="fleetModal">
+        <div class="modal-content" id="modalContent">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-3d-wrap">
+                <img id="modalImage" src="" alt="Vehicle" style="width:100%; height:100%; object-fit:contain; object-position:center; background: radial-gradient(circle, rgba(200,169,126,0.1), transparent);" />
+            </div>
+            <div class="modal-details" id="modalDetails"></div>
+        </div>
+    </div>
+
+    <!-- ========== FLOATING WHATSAPP ========== -->
+    <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20would%20like%20to%20book%20a%20ride." class="whatsapp-float" target="_blank" aria-label="Chat on WhatsApp">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================== -->
+    <script>
+    // ============================================================
+    // DATA
+    // ============================================================
+    const fleetData = [
+        { name:'Kia Carens', type:'Premium MPV', seats:'7', ac:'Dual Zone AC', price:'₹18/km', features:['7 Seats','AC','USB Charging','Music System'], color:0x2a5a8c, bodyType:'mpv', image:'Kia%20Carens.jpg', desc:'Spacious MPV perfect for family trips and group travel. Modern interiors with advanced comfort features and ample luggage space.' },
+        { name:'Toyota Innova Crysta', type:'Luxury MPV', seats:'7', ac:'Automatic Climate', price:'₹22/km', features:['Captain Seats','Premium AC','Entertainment','Spacious'], color:0xe8d5b7, bodyType:'mpv', image:'Toyota%20Innova%20Crysta%20launched%20with%20a%20bodykit%20in%20Thailand.jpg', desc:'The gold standard of Indian luxury travel. Captain seats, powerful engine, and supreme ride quality for the discerning traveler.' },
+        { name:'Toyota Etios', type:'Comfort Sedan', seats:'4', ac:'Climate Control', price:'₹12/km', features:['4 Seats','AC','Spacious Boot','Fuel Efficient'], color:0xb8b8b8, bodyType:'sedan', image:'etios.jpg', desc:'Reliable and comfortable sedan ideal for city commutes and airport transfers. Known for exceptional reliability and comfort.' },
+        { name:'Swift Dzire', type:'Executive Sedan', seats:'4', ac:'Auto Climate', price:'₹11/km', features:['4 Seats','AC','Infotainment','Comfortable'], color:0x4a7ab5, bodyType:'sedan', image:'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80', desc:'Elegant and nimble sedan perfect for daily commutes, airport runs, and short outstation trips in style.' },
+        { name:'Mercedes Benz', type:'Ultra Luxury', seats:'4', ac:'Multi-Zone Climate', price:'₹65/km', features:['Leather Interior','Premium Sound','Luxury','Chauffeur'], color:0x1a1a1a, bodyType:'luxury', image:'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80', desc:'The epitome of automotive luxury. For those who accept nothing less than perfection in every detail of their journey.' },
+        { name:'BMW', type:'Performance Luxury', seats:'4', ac:'Dual Zone Automatic', price:'₹60/km', features:['Sport Mode','iDrive','Premium Interior','Dynamic'], color:0x0a2a4a, bodyType:'luxury', image:'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80', desc:'Dynamic performance meets refined luxury. The ultimate driving machine for the discerning, performance-focused traveler.' }
+    ];
+
+    const servicesData = [
+        { icon:'✈️', title:'Airport Taxi', desc:'Punctual airport pickups and drops with flight tracking. Never worry about delays or missed connections again.' },
+        { icon:'🚗', title:'Pickup & Drop', desc:'Seamless point-to-point travel service. From doorstep to destination with comfort and precision.' },
+        { icon:'🏨', title:'Hotel Transfers', desc:'Luxury hotel shuttle services for guests and tourists. Arrive in style at any premium hotel.' },
+        { icon:'💼', title:'Corporate Travel', desc:'Dedicated corporate fleet management. Professional chauffeurs for executives and business events.' },
+        { icon:'💒', title:'Wedding & Events', desc:'Decorated luxury cars for weddings and celebrations. Make your special day unforgettable.' },
+        { icon:'🗺️', title:'Outstation Trips', desc:'Long-distance journeys with premium comfort. Explore destinations with curated outstation packages.' }
+    ];
+
+    const testimonialsData = [
+        { name:'Rajesh Sharma', role:'Business Executive', text:'Prathap Travels redefines luxury travel. The Innova Crysta was immaculate and the chauffeur was incredibly professional.' },
+        { name:'Ananya Patel', role:'Wedding Planner', text:'We booked 5 luxury cars for a grand wedding convoy. Every vehicle arrived on time, beautifully decorated. Absolutely stunning!' },
+        { name:'Vikram Singh', role:'Corporate Client', text:'Our company exclusively uses Prathap Travels for all executive transportation. Reliability, luxury, and professionalism — they excel.' },
+        { name:'Priya Nair', role:'Frequent Traveler', text:'From airport pickups to outstation trips, they handle everything perfectly. The Mercedes experience was out of this world.' },
+        { name:'Suresh Kumar', role:'Tour Organizer', text:'Organized a group tour with Prathap Travels. Multiple Kia Carens for 30+ people — flawless coordination and happy travelers.' },
+        { name:'Deepa Menon', role:'Hotel Manager', text:'We partner with Prathap Travels for all our guest transfers. The feedback from our guests has been overwhelmingly positive.' }
+    ];
+
+    let currentCarIndex = 0;
+    let mouseX = 0, mouseY = 0;
+
+    // ============================================================
+    // RENDER: SERVICES, TESTIMONIALS
+    // ============================================================
+    const servicesGrid = document.getElementById('servicesGrid');
+    servicesData.forEach(s => {
+        const c = document.createElement('div'); c.className = 'service-card reveal';
+        c.innerHTML = `<div class="service-icon">${s.icon}</div><div class="service-title">${s.title}</div><div class="service-desc">${s.desc}</div>`;
+        servicesGrid.appendChild(c);
+    });
+
+    const testimonialTrack = document.getElementById('testimonialTrack');
+    [...testimonialsData, ...testimonialsData].forEach(t => {
+        const c = document.createElement('div'); c.className = 'testimonial-card';
+        c.innerHTML = `<div class="testimonial-stars">${'<span class="star">★</span>'.repeat(5)}</div><div class="testimonial-text">"${t.text}"</div><div class="testimonial-author"><div class="testimonial-avatar">${t.name[0]}</div><div><div class="testimonial-name">${t.name}</div><div class="testimonial-role">${t.role}</div></div></div>`;
+        testimonialTrack.appendChild(c);
+    });
+
+    // ============================================================
+    // FLEET GRID INIT
+    // ============================================================
+    const fleetGrid = document.getElementById('fleetGrid');
+    
+    function initFleetGrid() {
+        if(!fleetGrid) return;
+        fleetData.forEach((car, index) => {
+            const card = document.createElement('div');
+            card.className = 'fleet-card reveal-up';
+            card.onclick = (e) => {
+                if(!e.target.closest('.btn-book')) {
+                    openFleetModal(index);
+                }
+            };
+            
+            const specsHTML = [...car.features.slice(0,3), car.seats + ' Seats', car.ac].slice(0, 3).map(f => `<span class="fleet-spec-chip">${f}</span>`).join('');
+            
+            card.innerHTML = `
+                <div class="fleet-img-wrap">
+                    <img class="fleet-card-img" src="${car.image}" alt="${car.name}" loading="lazy" />
+                </div>
+                <div class="fleet-card-title">${car.name}</div>
+                <div class="fleet-card-type">${car.type}</div>
+                <div class="fleet-card-specs">${specsHTML}</div>
+                <p class="fleet-card-desc">${car.desc}</p>
+                <div class="fleet-card-actions">
+                    <button class="fleet-card-btn btn-view" onclick="openFleetModal(${index}); event.stopPropagation();">View Details</button>
+                    <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20want%20to%20book%20a%20${encodeURIComponent(car.name)}" class="fleet-card-btn btn-book" target="_blank">Book Now</a>
+                </div>
+            `;
+            fleetGrid.appendChild(card);
+        });
+    }
+
+    // ============================================================
+    // FLEET MODAL
+    // ============================================================
+    function openFleetModal(index) {
+        const car = fleetData[index];
+        const modal = document.getElementById('fleetModal');
+        const modalImg = document.getElementById('modalImage');
+        
+        modalImg.src = car.image;
+
+        // Render details
+        document.getElementById('modalDetails').innerHTML = `
+            <div class="modal-car-name">${car.name}</div>
+            <div class="modal-car-type">${car.type}</div>
+            <p class="modal-car-desc">${car.desc}</p>
+            <div class="modal-specs-grid">
+                <div class="modal-spec"><div class="modal-spec-value">${car.seats}</div><div class="modal-spec-label">Seats</div></div>
+                <div class="modal-spec"><div class="modal-spec-value">${car.price}</div><div class="modal-spec-label">Starting Rate</div></div>
+                <div class="modal-spec"><div class="modal-spec-value">${car.ac}</div><div class="modal-spec-label">Climate</div></div>
+                <div class="modal-spec"><div class="modal-spec-value">${car.bodyType.toUpperCase()}</div><div class="modal-spec-label">Body Type</div></div>
+            </div>
+            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px;">
+                ${car.features.map(f => `<span class="spec-chip">${f}</span>`).join('')}
+            </div>
+            <a href="https://wa.me/919945966629?text=Hello%20Prathap%20Travels%2C%20I%20want%20to%20book%20a%20${encodeURIComponent(car.name)}." class="btn-primary" target="_blank" style="width:100%; text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">
+                WhatsApp Us to Book
+            </a>
+        `;
+
+        // Show modal
+        modal.classList.add('active');
+        gsap.to(modal, { opacity: 1, duration: 0.4 });
+        gsap.to('#modalContent', { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.3)' });
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('fleetModal');
+        gsap.to('#modalContent', { scale: 0.85, y: 40, opacity: 0, duration: 0.3, ease: 'power2.in' });
+        gsap.to(modal, { opacity: 0, duration: 0.3, delay: 0.1, onComplete: () => {
+            modal.classList.remove('active');
+        }});
+    }
+    document.getElementById('fleetModal').addEventListener('click', (e) => { if (e.target.id === 'fleetModal') closeModal(); });
+
+    // ============================================================
+    // SHOWROOM PARTICLES (2D Canvas overlay)
+    // ============================================================
+    (function showroomParticlesInit() {
+        const c = document.getElementById('showroomParticles');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        const wrap = document.getElementById('showroomWrap');
+        let w, h;
+        const particles = [];
+        function resize() { w = c.width = wrap.clientWidth; h = c.height = wrap.clientHeight; }
+        resize(); window.addEventListener('resize', resize);
+        for (let i = 0; i < 25; i++) {
+            particles.push({ x: Math.random() * 1200, y: Math.random() * 700, vx: (Math.random() - 0.5) * 0.3, vy: -Math.random() * 0.4 - 0.1, r: Math.random() * 1.5 + 0.3, a: Math.random() * 0.4 + 0.1 });
+        }
+        function draw() {
+            ctx.clearRect(0, 0, w, h);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.y < -5) { p.y = h + 5; p.x = Math.random() * w; }
+                if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212,175,55,${p.a})`; ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+    // ============================================================
+    // BOOKING FORM → WHATSAPP
+    // ============================================================
+    function handleBooking(e) {
+        e.preventDefault();
+        const n = document.getElementById('bkName').value, p = document.getElementById('bkPhone').value;
+        const pu = document.getElementById('bkPickup').value, dr = document.getElementById('bkDrop').value;
+        const dt = document.getElementById('bkDate').value, v = document.getElementById('bkVehicle').value;
+        const sv = document.getElementById('bkService').value;
+        const msg = `Hello Prathap Travels!%0A%0A*New Booking*%0AName: ${n}%0APhone: ${p}%0APickup: ${pu}%0ADrop: ${dr}%0ADate: ${dt}%0AVehicle: ${v}%0AService: ${sv}%0A%0APlease confirm. Thank you!`;
+        window.open(`https://wa.me/919945966629?text=${msg}`, '_blank');
+    }
+
+    // ============================================================
+    // MOBILE MENU
+    // ============================================================
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => document.getElementById('mobileNav').classList.toggle('active'));
+    function closeMobileMenu() { document.getElementById('mobileNav').classList.remove('active'); }
+
+    // ============================================================
+    // CUSTOM CURSOR
+    // ============================================================
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+    const mouseLight = document.getElementById('mouseLight');
+    let ringX = 0, ringY = 0;
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX; mouseY = e.clientY;
+        cursorDot.style.left = mouseX - 4 + 'px'; cursorDot.style.top = mouseY - 4 + 'px';
+        mouseLight.style.left = mouseX + 'px'; mouseLight.style.top = mouseY + 'px';
+    });
+    function animateCursor() {
+        ringX += (mouseX - ringX) * 0.12; ringY += (mouseY - ringY) * 0.12;
+        cursorRing.style.left = ringX - 20 + 'px'; cursorRing.style.top = ringY - 20 + 'px';
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+    document.querySelectorAll('a, button, .service-card, .contact-card, .testimonial-card, .social-icon, select, input, .nav-arrow, .nav-dot, canvas').forEach(el => {
+        el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+    });
+
+    // ============================================================
+    // SCROLL PROGRESS & NAVBAR
+    // ============================================================
+    window.addEventListener('scroll', () => {
+        const p = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        document.getElementById('scrollProgress').style.width = p + '%';
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+    });
+
+    // ============================================================
+    // INTRO ANIMATION
+    // ============================================================
+    const introTl = gsap.timeline({
+        onComplete: () => {
+            gsap.to('#intro-screen', { opacity: 0, duration: 0.8, ease: 'power2.inOut', onComplete: () => {
+                document.getElementById('intro-screen').style.display = 'none';
+                playHeroAnimations();
+            }});
+        }
+    });
+    const introParticles = document.getElementById('introParticles');
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div'); p.className = 'smoke-particle';
+        const s = Math.random() * 80 + 20; p.style.width = s + 'px'; p.style.height = s + 'px';
+        p.style.left = Math.random() * 100 + '%'; p.style.top = Math.random() * 100 + '%'; p.style.opacity = '0';
+        introParticles.appendChild(p);
+    }
+    introTl
+        .to('.intro-title', { opacity: 1, duration: 1, ease: 'power2.out' }, 0.3)
+        .to('.intro-subtitle', { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.8)
+        .to('.smoke-particle', { opacity: () => Math.random() * 0.3 + 0.05, x: () => Math.random() * 100 - 50, y: () => Math.random() * 100 - 50, duration: 2, stagger: 0.03, ease: 'power1.out' }, 0.5)
+        .to('.intro-car', { opacity: 1, left: '35%', duration: 2, ease: 'power2.out' }, 0.8)
+        .to('.wheel', { rotation: 720, duration: 2, ease: 'power2.out' }, 0.8)
+        .to('.headlight', { opacity: 1, duration: 0.3 }, 1.5)
+        .to('.light-beam', { opacity: 1, duration: 0.5 }, 1.6)
+        .to('.taillight', { opacity: 1, duration: 0.3 }, 1.7)
+        .to('.intro-title', { textShadow: '0 0 60px rgba(212,175,55,0.6), 0 0 120px rgba(212,175,55,0.3)', duration: 0.8 }, 1.8)
+        .to({}, { duration: 0.6 });
+
+    function playHeroAnimations() {
+        gsap.to('.hero-bg', { scale: 1.08, duration: 20, ease: 'none', repeat: -1, yoyo: true });
+        gsap.timeline()
+            .to('#heroBadge', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0)
+            .fromTo('#heroTitle', { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.2)
+            .fromTo('#heroSubtitle', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8 }, 0.5)
+            .fromTo('#heroButtons', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8 }, 0.7)
+            .fromTo('#heroScroll', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, 1);
+    }
+
+    // ============================================================
+    // THREE.JS HERO PARTICLES
+    // ============================================================
+    (function () {
+        const c = document.getElementById('hero-canvas');
+        const s = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+        const r = new THREE.WebGLRenderer({ canvas: c, alpha: true, antialias: true }); r.setSize(innerWidth, innerHeight); r.setPixelRatio(Math.min(devicePixelRatio, 2));
+        const n = 600; const pos = new Float32Array(n * 3); const cols = new Float32Array(n * 3);
+        for (let i = 0; i < n; i++) { pos[i*3]=(Math.random()-0.5)*20; pos[i*3+1]=(Math.random()-0.5)*20; pos[i*3+2]=(Math.random()-0.5)*20; cols[i*3]=0.8+Math.random()*0.2; cols[i*3+1]=0.65+Math.random()*0.2; cols[i*3+2]=0.2+Math.random()*0.15; }
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+        const pts = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.03, vertexColors: true, transparent: true, opacity: 0.5, sizeAttenuation: true }));
+        s.add(pts); cam.position.z = 5;
+        let t = 0;
+        function a() { requestAnimationFrame(a); t += 0.001; pts.rotation.y = t * 0.5; pts.rotation.x = Math.sin(t * 0.3) * 0.1; r.render(s, cam); }
+        a();
+        addEventListener('resize', () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); r.setSize(innerWidth, innerHeight); });
+    })();
+
+    // ============================================================
+    // GSAP SCROLL ANIMATIONS
+    // ============================================================
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.utils.toArray('.reveal').forEach(el => {
+        gsap.fromTo(el, { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
+    });
+    gsap.utils.toArray('.reveal-left').forEach(el => {
+        gsap.fromTo(el, { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
+    });
+    gsap.utils.toArray('.reveal-right').forEach(el => {
+        gsap.fromTo(el, { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
+    });
+    gsap.utils.toArray('.reveal-scale').forEach(el => {
+        gsap.fromTo(el, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
+    });
+    gsap.utils.toArray('.parallax-bg').forEach(bg => {
+        gsap.to(bg, { y: -100, ease: 'none', scrollTrigger: { trigger: bg.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+    });
+    gsap.utils.toArray('.stat-number').forEach(el => {
+        const tgt = parseInt(el.getAttribute('data-count'));
+        const o = { val: 0 };
+        gsap.to(o, { val: tgt, duration: 2.5, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 85%' },
+            onUpdate: () => { el.textContent = tgt >= 1000 ? Math.floor(o.val).toLocaleString() + '+' : Math.floor(o.val) + (tgt === 99 ? '%' : '+'); }
+        });
+    });
+    ScrollTrigger.batch('.service-card', { start: 'top 85%', onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }) });
+    gsap.utils.toArray('.parallax-number').forEach(el => {
+        gsap.to(el, { y: -80, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+    });
+
+    // Fleet showroom scroll-driven parallax
+    ScrollTrigger.create({
+        trigger: '#fleet',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        onUpdate: (self) => {
+            if (typeof fleetImage !== 'undefined' && fleetImage) { fleetImage.style.transform = `scale(${1 + self.progress * 0.05})`; }
+        }
+    });
+
+    // Smooth nav links
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => { e.preventDefault(); const t = document.querySelector(link.getAttribute('href')); if (t) gsap.to(window, { duration: 1, scrollTo: { y: t, offsetY: 80 }, ease: 'power2.inOut' }); });
+    });
+
+    // ============================================================
+    // BACKGROUND PARTICLES
+    // ============================================================
+    (function () {
+        const c = document.createElement('canvas');
+        c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.25;';
+        document.body.appendChild(c); const ctx = c.getContext('2d'); let w, h; const ps = []; const cnt = 30;
+        function res() { w = c.width = innerWidth; h = c.height = innerHeight; } res(); addEventListener('resize', res);
+        for (let i = 0; i < cnt; i++) ps.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2, r: Math.random() + 0.5, a: Math.random() * 0.4 + 0.05 });
+        function d() { ctx.clearRect(0, 0, w, h); ps.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.x < 0) p.x = w; if (p.x > w) p.x = 0; if (p.y < 0) p.y = h; if (p.y > h) p.y = 0; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(212,175,55,${p.a})`; ctx.fill(); });
+            for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) { const dx = ps[i].x - ps[j].x, dy = ps[i].y - ps[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 150) { ctx.beginPath(); ctx.moveTo(ps[i].x, ps[i].y); ctx.lineTo(ps[j].x, ps[j].y); ctx.strokeStyle = `rgba(212,175,55,${0.04 * (1 - dist / 150)})`; ctx.lineWidth = 0.5; ctx.stroke(); } }
+            requestAnimationFrame(d);
+        } d();
+    })();
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    initFleetGrid();
+    
+    function initServices() {
+        const grid = document.getElementById('servicesGrid');
+        if(!grid) return;
+        servicesData.forEach((s, i) => {
+            const card = document.createElement('div');
+            card.className = 'service-card';
+            card.innerHTML = `<div class="service-icon">${s.icon}</div><h3 class="service-title">${s.title}</h3><p class="service-desc">${s.desc}</p><a href="#contact" class="service-link">Learn More <span>→</span></a>`;
+            grid.appendChild(card);
+        });
+    }
+    initServices();
+    
+    function initTestimonials() {
+        const track = document.getElementById('testimonialTrack');
+        if (!track) return;
+        
+        const markup = testimonialsData.map((t) => {
+            return `<div class="testimonial-card">
+                <p style="margin-bottom:15px; font-size:1.05rem; font-style:italic;">"${t.text}"</p>
+                <h4 style="color:var(--gold); font-size:1.1rem; margin-bottom:5px;">${t.name}</h4>
+                <p style="font-size:0.9rem; opacity:0.7;">${t.role}</p>
+            </div>`;
+        }).join('');
+        
+        // Duplicate for infinite marquee effect if necessary
+        track.innerHTML = markup + markup;
+    }
+    initTestimonials();
+    </script>
+</body>
+</html>
